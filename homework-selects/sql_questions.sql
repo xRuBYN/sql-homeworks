@@ -154,7 +154,7 @@ WHERE SALARY <= (SELECT SALARY FROM EMPLOYEES WHERE JOB_ID LIKE 'MK_MAN')
 --29. all the information of those employees who did not have any job in the past.
 SELECT *
 FROM EMPLOYEES
-WHERE NOT EMPLOYEE_ID = ANY (SELECT EMPLOYEE_ID FROM JOB_HISTORY);
+WHERE NOT EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM JOB_HISTORY);
 
 --30. the employee number, name( first name and last name ) and job title for all employees whose salary is more than any average salary of any department.
 SELECT EMPLOYEE_ID, CONCAT(CONCAT(FIRST_NAME, ' '), LAST_NAME) as name, JOB_TITLE
@@ -167,11 +167,31 @@ WHERE SALARY > ANY (SELECT AVG(SALARY)
                     GROUP BY DEPARTMENT_ID);
 
 --31. the employee id, name ( first name and last name ) and the job id column with a modified title SALESMAN for those employees whose job title is ST_MAN and DEVELOPER for whose job title is IT_PROG.
-
+SELECT  EMPLOYEE_ID,  CONCAT(CONCAT(FIRST_NAME, ' '), LAST_NAME) as name,
+        CASE
+            WHEN 'ST_MAN' = JOB_ID THEN 'SALESMAN'
+            WHEN 'IT_PROG' = JOB_ID THEN 'DEVELOPER'
+            ELSE JOB_ID
+            END AS NEW_JOB,  SALARY
+FROM EMPLOYEES;
 --32. the employee id, name ( first name and last name ), salary and the SalaryStatus column with a title HIGH and LOW respectively for those employees whose salary is more than and less than the average salary of all employees.
+SELECT  EMPLOYEE_ID,  CONCAT(CONCAT(FIRST_NAME, ' '), LAST_NAME) as name, SALARY,
+        CASE WHEN SALARY >= (SELECT AVG(SALARY) FROM EMPLOYEES)
+                 THEN 'HIGH'
+             ELSE 'LOW'
+            END AS SalaryStatus
+FROM EMPLOYEES;
 --33. the employee id, name ( first name and last name ), SalaryDrawn, AvgCompare (salary - the average salary of all employees)
 -- and the SalaryStatus column with a title HIGH and LOW respectively for those employees whose salary is more than and less than
 -- the average salary of all employees.
+SELECT  EMPLOYEE_ID,  FIRST_NAME, LAST_NAME,  SALARY AS SalaryDrawn,
+        ROUND((SALARY -(SELECT AVG(SALARY) FROM EMPLOYEES)), 2) AS AvgCompare,
+        CASE  WHEN SALARY >=
+                   (SELECT AVG(SALARY) FROM EMPLOYEES)
+                  THEN 'HIGH'
+              ELSE 'LOW'
+            END AS SalaryStatus
+FROM EMPLOYEES;
 --34. all the employees who earn more than the average and who work in any of the IT departments.
 SELECT *
 FROM EMPLOYEES
@@ -182,14 +202,15 @@ SELECT *
 FROM EMPLOYEES
 WHERE SALARY > (SELECT SALARY FROM EMPLOYEES WHERE LAST_NAME LIKE 'Ozer');
 --36. which employees have a manager who works for a department based in the US.
-SELECT E.FIRST_NAME, E.LAST_NAME , L.COUNTRY_ID
+SELECT E.FIRST_NAME, E.LAST_NAME, E.MANAGER_ID
 FROM DEPARTMENTS D
-         JOIN LOCATIONS L USING(LOCATION_ID)
          LEFT JOIN EMPLOYEES E USING(DEPARTMENT_ID)
-WHERE D.MANAGER_ID = ANY(SELECT MANAGER_ID
-                      FROM DEPARTMENTS D
-                      LEFT JOIN LOCATIONS L USING (LOCATION_ID)
-                      WHERE L.COUNTRY_ID LIKE 'US' AND D.MANAGER_ID IS NOT NULL);
+WHERE E.MANAGER_ID = ANY(SELECT MANAGER_ID
+FROM DEPARTMENTS
+WHERE DEPARTMENTS.LOCATION_ID = ANY(SELECT  DISTINCT LOCATION_ID
+    FROM LOCATIONS
+    WHERE COUNTRY_ID LIKE 'US'));
+
 --37. the names of all employees whose salary is greater than 50% of their department’s total salary bill.
 SELECT CONCAT(CONCAT(FIRST_NAME, ' '), LAST_NAME)
 FROM EMPLOYEES
@@ -204,7 +225,9 @@ LEFT JOIN LOCATIONS USING(LOCATION_ID);
 --the employees who gets the salary as the salary earn by the employee which is maximum within the joining person January 1st, 2002 and December 31st, 2003.
 SELECT *
 FROM EMPLOYEES
-WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE HIRE_DATE BETWEEN TO_DATE('2002-JAN-01','YYYY-MM-DD') AND TO_DATE('2003-DEC-31','YYYY-MM-DD'));
+WHERE SALARY = (SELECT MAX(SALARY)
+                FROM EMPLOYEES
+                WHERE HIRE_DATE BETWEEN TO_DATE('2002-JAN-01','YYYY-MM-DD') AND TO_DATE('2003-DEC-31','YYYY-MM-DD'));
 --39. the first and last name, salary, and department ID for all those employees who earn more than the average salary and arrange the list in descending order on salary.
 SELECT FIRST_NAME, LAST_NAME, SALARY, DEPARTMENT_ID
 FROM EMPLOYEES
@@ -244,13 +267,14 @@ SELECT CONCAT(CONCAT(M.FIRST_NAME,' '), M.LAST_NAME) AS MANAGER_NAME, E.MANAGER_
 FROM EMPLOYEES E
          LEFT JOIN EMPLOYEES M ON E.MANAGER_ID = M.EMPLOYEE_ID
 GROUP BY E.MANAGER_ID, CONCAT(CONCAT(M.FIRST_NAME,' '), M.LAST_NAME), E.MANAGER_ID
-HAVING COUNT(E.MANAGER_ID) > 4;
+HAVING COUNT(E.MANAGER_ID) >= 4;
 --48. the details of the current job for those employees who worked as a Sales Representative in the past.
---not finish
-SELECT JOB_ID,JOB_TITLE, MIN_SALARY, MAX_SALARY
+SELECT *
 FROM JOBS
-WHERE JOB_ID = ANY(SELECT JOB_ID FROM EMPLOYEES WHERE EMPLOYEE_ID = ANY(SELECT EMPLOYEE_ID FROM JOB_HISTORY) AND JOB_ID = ANY(SELECT JOB_ID FROM JOBS WHERE JOB_TITLE LIKE 'Sales Manager'));
-
+WHERE JOB_ID = (SELECT E.JOB_ID
+                FROM EMPLOYEES E LEFT JOIN JOB_HISTORY JH USING(EMPLOYEE_ID)
+                WHERE E.JOB_ID = ANY(SELECT JOB_ID FROM JOB_HISTORY)
+                  AND JH.JOB_ID = (SELECT JOBS.JOB_ID FROM JOBS WHERE JOB_TITLE LIKE 'Sales Representative'));
 --49. all the infromation about those employees who earn second lowest salary of all the employees.
 SELECT *
 FROM EMPLOYEES
@@ -258,9 +282,6 @@ WHERE SALARY = ((SELECT max(SALARY)
                  FROM (SELECT DISTINCT SALARY FROM EMPLOYEES ORDER BY SALARY ASC)
                  WHERE ROWNUM < 3));
 --50. the department ID, full name (first and last name), salary for those employees who is highest salary drawar in a department.
---not finish
-SELECT MAX(SALARY)
-FROM EMPLOYEES
-WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = ANY(SELECT DEPARTMENT_ID FROM DEPARTMENTS) GROUP BY DEPARTMENT_ID)
-GROUP BY DEPARTMENT_ID;
-
+SELECT DEPARTMENT_ID,CONCAT(CONCAT(FIRST_NAME, ' '), LAST_NAME),SALARY
+FROM EMPLOYEES E
+WHERE SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = E.DEPARTMENT_ID)
