@@ -13,8 +13,7 @@ SELECT FIRST_NAME, LAST_NAME, DEPARTMENT_ID, DEPARTMENT_NAME
 FROM EMPLOYEES
          LEFT JOIN DEPARTMENTS
                    USING (DEPARTMENT_ID)
-WHERE DEPARTMENT_ID = 40
-   or DEPARTMENT_ID = 80;
+WHERE DEPARTMENT_ID IN(40,80);
 -- 4. those employees who contain a letter z to their first name and also display their last name, department, city, and state province.
 SELECT first_name, last_name, department_name, city, state_province
 FROM employees e
@@ -101,7 +100,7 @@ WHERE department_name LIKE 'Finance';
 --19. all the information of an employee whose id is any of the number 134, 159 and 183.
 SELECT *
 FROM employees
-WHERE employee_id = ANY (134, 159, 183);
+WHERE employee_id IN (134, 159, 183);
 --20. all the information of the employees whose salary is within the range of smallest salary and 2500.
 SELECT *
 FROM EMPLOYEES
@@ -162,8 +161,8 @@ FROM EMPLOYEES E
          JOIN JOBS J USING (JOB_ID)
 WHERE SALARY > ANY (SELECT AVG(SALARY)
                     FROM EMPLOYEES
-                    WHERE DEPARTMENT_ID =
-                              ANY (SELECT DEPARTMENT_ID FROM DEPARTMENTS)
+                    WHERE DEPARTMENT_ID IN
+                              (SELECT DEPARTMENT_ID FROM DEPARTMENTS)
                     GROUP BY DEPARTMENT_ID);
 
 --31. the employee id, name ( first name and last name ) and the job id column with a modified title SALESMAN for those employees whose job title is ST_MAN and DEVELOPER for whose job title is IT_PROG.
