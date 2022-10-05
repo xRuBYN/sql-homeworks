@@ -29,8 +29,7 @@ WHERE e.salary < (SELECT salary
 -- 6. the first name of all employees including the first name of their manager.
 SELECT E.FIRST_NAME, M.FIRST_NAME AS MANAGER_NAME
 FROM EMPLOYEES E
-         LEFT JOIN EMPLOYEES M ON E.MANAGER_ID = M.EMPLOYEE_ID
-WHERE E.MANAGER_ID IS NOT NULL;
+         JOIN EMPLOYEES M ON E.MANAGER_ID = M.EMPLOYEE_ID;
 -- 7. the first name of all employees and the first name of their manager including those who does not working under any manager.
 SELECT E.FIRST_NAME, M.FIRST_NAME AS MANAGER_NAME
 FROM EMPLOYEES E
@@ -76,7 +75,6 @@ FROM JOB_HISTORY
          LEFT JOIN EMPLOYEES E USING (EMPLOYEE_ID)
 WHERE E.DEPARTMENT_ID = 80
 GROUP BY EMPLOYEE_ID, J.JOB_TITLE;
-
 
 --15. the name ( first name and last name ) for those employees who gets more salary than the employee whose ID is 163.
 SELECT CONCAT(e.first_name, e.last_name) AS name
