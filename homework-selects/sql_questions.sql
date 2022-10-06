@@ -36,6 +36,10 @@ FROM EMPLOYEES E
          LEFT JOIN EMPLOYEES M ON E.MANAGER_ID = M.EMPLOYEE_ID;
 -- 8. the details of employees who manage a department.
 SELECT *
+FROM employees e
+    INNER JOIN departments d on d.manager_id = e.employee_id;
+
+SELECT *
 FROM EMPLOYEES E
 WHERE E.EMPLOYEE_ID = ANY (SELECT MANAGER_ID FROM DEPARTMENTS WHERE MANAGER_ID IS NOT NULL);
 -- 9. the first name, last name, and department number for those employees who works in the same department as the employee who holds the last name as Taylor.
