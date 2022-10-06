@@ -15,5 +15,5 @@ CREATE OR REPLACE TRIGGER minus_department_amount
 BEGIN
 UPDATE locations
 SET locations.department_amount = (locations.department_amount - 1)
-WHERE locations.location_id = : new.location_id;
+WHERE locations.location_id = : old.location_id;
 END;

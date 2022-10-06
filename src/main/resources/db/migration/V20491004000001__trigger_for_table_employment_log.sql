@@ -1,27 +1,13 @@
-CREATE OR REPLACE TRIGGER add_employment_log
-    AFTER INSERT
-    ON employees
+CREATE OR REPLACE TRIGGER modif_emp_logs
+    AFTER INSERT OR DELETE ON employees
     FOR EACH ROW
 BEGIN
-    IF INSERTING THEN
-        procedure_add_employment_log(:new.first_name, :new.last_name,'HIRED',current_date);
-
-    end if;
+    IF :old.employee_id IS NULL THEN
+        procedure_add_employment_log(:new.first_name, :new.last_name, 'HIRED',current_date);
+    ELSE
+        procedure_add_employment_log(:old.first_name, :old.last_name, 'FIRED',current_date);
+    END IF;
 END;
-
-CREATE OR REPLACE TRIGGER add_employment_log
-    BEFORE DELETE
-    ON employees
-    FOR EACH ROW
-BEGIN
-    IF DELETING THEN
-        procedure_add_employment_log(:old.first_name, :old.last_name,'FIRED',current_date);
-
-    end if;
-END;
-
-
-
 
 CREATE OR REPLACE PROCEDURE procedure_add_employment_log
 ( p_first_name                        employment_log.first_name%type
