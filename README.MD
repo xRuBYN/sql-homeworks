@@ -1,7 +1,7 @@
 # SQL Homeworks 
 ## SQL Selects Homeworks
 Important! Please read our homework confluence page for details!
-The homework is located: /homework-selects/sql_questions.sql 
+The homework is located: /homework-selects/A-task_lab7.sql 
 
 ## SQL Migration Homework
 For this homework, you will be adding sql migration scripts in /src/main/db.migration

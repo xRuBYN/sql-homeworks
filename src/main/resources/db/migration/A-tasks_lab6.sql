@@ -47,17 +47,3 @@ CREATE SYNONYM pay_syn FOR employeesdb.people.pay;
 --  Revoke Changes with sinonyms and schemas
 --------------------------------------------------------
 
-ALTER SCHEMA dbo
-    TRANSFER territory.countries
-ALTER SCHEMA dbo
-    TRANSFER territory.regions
-ALTER SCHEMA dbo
-    TRANSFER territory.locations
-
-
-ALTER SCHEMA dbo
-    TRANSFER people.employees
-ALTER SCHEMA dbo
-    TRANSFER people.departments
-ALTER SCHEMA dbo
-    TRANSFER people.pay
