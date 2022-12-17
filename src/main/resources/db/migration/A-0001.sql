@@ -1,3 +1,17 @@
+
+-- sterge baza de date inidiferent daca este utilizata sau nu;
+IF DB_ID('employeedb') IS NOT NULL
+ BEGIN
+  DECLARE @kill varchar(8000) = '';
+SELECT @kill = @kill + 'kill ' + CONVERT(varchar(5), session_id) + ';'
+FROM sys.dm_exec_sessions
+WHERE database_id  = db_id('employeedb')
+    EXEC(@kill);
+
+DROP DATABASE employeedb;
+END
+
+
 CREATE TABLE countries
 (
     country_id   CHAR(2),

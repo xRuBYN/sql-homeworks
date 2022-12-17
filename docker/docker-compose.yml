@@ -1,26 +1,29 @@
 version: "3.8"
 
 services:
-  oracle:
-    image: 'aleanca/oracledb-12.2.0.1-ee:12.2.0.1-ee-01'
-    container_name: oracle
-    hostname: oracle
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    hostname: sql1
     environment:
-      ORACLE_SID: 'CDB'
-      ORACLE_PDB: 'PDB'
-      ORACLE_PWD: 'Orclpass123'
-    volumes:
-      - './setup:/opt/oracle/scripts/setup'
-      - 'dbdata:/opt/oracle/oradata'
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=sa
     ports:
-      - '1521:1521'
-      - '550:5500'
-    logging:
-      driver: "local"
-      options:
-        max-size: "100m"
-        max-file: "2"
-
-volumes:
-  dbdata:
-    name: dbdata
+      - "1433:1433"
+    volumes:
+      - /home/app/db/
+  db-management:
+    image: sqlpad/sqlpad
+    container_name: sqlpad
+    ports:
+      - "3000:3000"
+    environment:
+      SQLPAD_ADMIN: 'admin@sqlpad.com'
+      SQLPAD_ADMIN_PASSWORD: 'admin'
+      SQLPAD_CONNECTIONS_mssqlserver_name: Market
+      SQLPAD_CONNECTIONS_mssqlserver_driver: sqlserver
+      SQLPAD_CONNECTIONS_mssqlserver_database: employeedb
+      SQLPAD_CONNECTIONS_mssqlserver_username: sa
+      SQLPAD_CONNECTIONS_mssqlserver_password: sa
+    volumes:
+      - /home/app/sqlpad/
